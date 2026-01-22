@@ -3,19 +3,33 @@ import { GoogleGenAI } from "@google/genai";
 import { Message } from "../types";
 
 const SYSTEM_INSTRUCTION = `
-You are the MLL Solution AI Consultant. Your goal is to help visitors understand the services offered by MLL Solution.
-MLL Solution is a leading management and logistics solutions firm specializing in:
-1. Supply Chain Optimization
-2. Strategic Business Consulting
-3. Digital Transformation
-4. Financial Risk Management
+You are the MLL Solution Strategic AI Advisor. 
+MLL Solution is a premier logistics and management consulting firm.
+Key Expertise:
+- Supply Chain Resilience & Optimization
+- Strategic Business Growth & Advisory
+- Global Fleet & Asset Management
+- Digital Infrastructure for Logistics
 
-Always be professional, concise, and helpful. If asked about pricing, mention that we provide custom quotes based on project requirements.
-If you don't know an answer, direct them to our contact page.
+Tone: Professional, authoritative, yet approachable.
+Guidelines:
+- Provide actionable business advice.
+- Explain how MLL Solution's methodology (Data-driven, Rapid Execution) helps clients.
+- If asked about specific logistics costs, explain that we provide tailored quotes.
+- Refer to our website sections: Services, About, and Contact for more details.
 `;
 
 export const getGeminiResponse = async (history: Message[], prompt: string) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+  // Ensure the environment variable is available. 
+  // In Netlify/Vite, this is handled by the 'define' in vite.config.ts
+  const apiKey = process.env.API_KEY;
+  
+  if (!apiKey) {
+    console.error("API_KEY is missing from environment variables.");
+    return "The AI Advisor is currently waiting for configuration. Please ensure the API Key is set in the environment variables section of your hosting provider.";
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
   
   try {
     const response = await ai.models.generateContent({
@@ -30,14 +44,12 @@ export const getGeminiResponse = async (history: Message[], prompt: string) => {
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         temperature: 0.7,
-        topP: 0.95,
-        topK: 40,
       },
     });
 
-    return response.text || "I'm sorry, I couldn't process that request.";
-  } catch (error) {
+    return response.text || "I apologize, I'm unable to provide a strategic response at this moment.";
+  } catch (error: any) {
     console.error("Gemini API Error:", error);
-    return "Our AI consultant is currently offline. Please try again later or contact us directly.";
+    return "Our strategic advisor is briefly offline. Please contact MLL Solution directly at info@mllsolution.com.";
   }
 };
